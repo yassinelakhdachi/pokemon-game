@@ -7,6 +7,7 @@ import ch.epfl.cs107.icmon.gamelogic.actions.LogAction;
 import ch.epfl.cs107.icmon.gamelogic.events.CollectItemEvent;
 import ch.epfl.cs107.icmon.gamelogic.events.ICMonEvent;
 import ch.epfl.cs107.play.areagame.AreaGame;
+import ch.epfl.cs107.play.areagame.actor.Interactable;
 import ch.epfl.cs107.play.areagame.area.Area;
 import ch.epfl.cs107.play.engine.actor.OrientedAnimation;
 import ch.epfl.cs107.play.io.FileSystem;
@@ -37,7 +38,24 @@ public class ICMon extends AreaGame {
 
     private ICMonItem ball;
 
+    private ICMonGameState gameState = new ICMonGameState();
+
     private ArrayList<ICMonEvent> events = new ArrayList<>();
+
+    // Classe interne publique pour gérer l'état du jeu
+
+    public ICMonGameState getGameState() {
+        return gameState;
+    }
+    public class ICMonGameState {
+        // Méthodes pour gérer les interactions en fonction de l'état du jeu
+        public void acceptInteraction(Interactable interactable, boolean isCellInteraction) {
+            for (ICMonEvent event : events) {
+                interactable.acceptInteraction(event, isCellInteraction);
+            }
+        }
+    }
+
 
     /**
      * ???
@@ -60,9 +78,9 @@ public class ICMon extends AreaGame {
             initArea(areas[areaIndex]);
             ball = new ICBall(getCurrentArea(), new DiscreteCoordinates(6, 6));
             getCurrentArea().registerActor(ball);
+            LogAction collectStarted = new LogAction("CollectItemEvent started !");
             CollectItemEvent event1 = new CollectItemEvent(player, ball);
             events.add(event1);
-            LogAction collectStarted = new LogAction("CollectItemEvent started !");
             LogAction collectCompleted = new LogAction("CollectItemEvent completed !");
             event1.onStart(collectStarted);
             event1.start();
@@ -112,7 +130,8 @@ public class ICMon extends AreaGame {
     private void initArea(String areaKey) {
         ICMonArea area = (ICMonArea) setCurrentArea(areaKey, true);
         DiscreteCoordinates coords = area.getPlayerSpawnPosition();
-        player = new ICMonPlayer(area, Orientation.DOWN, coords, "actors/player");
+
+        player = new ICMonPlayer(area, Orientation.DOWN, coords, "actors/player", this);
         player.enterArea(area, coords);
         player.centerCamera();
     }

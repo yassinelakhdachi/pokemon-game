@@ -11,7 +11,7 @@ import ch.epfl.cs107.play.math.RegionOfInterest;
 import java.util.List;
 
 public abstract class NPCActor extends ICMonActor {
-    private final Sprite sprite;
+    protected final Sprite sprite;
     /**
      * ???
      *
