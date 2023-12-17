@@ -12,11 +12,21 @@ public abstract class ICMonEvent implements Updatable, ICMonInteractionVisitor {
     private boolean isStarted;
     private boolean isComplete;
     private boolean isSuspended;
+
     private ICMonPlayer player;
+
     private ArrayList<Action> starting = new ArrayList<>();
     private ArrayList<Action> ending = new ArrayList<>();
     private ArrayList<Action> suspended = new ArrayList<>();
     private ArrayList<Action> resumed = new ArrayList<>();
+
+    public ICMonPlayer getPlayer() {
+        return player;
+    }
+
+    public boolean isComplete() {
+        return this.isComplete;
+    }
 
     public ICMonEvent(ICMonPlayer player){
         this.player = player;

@@ -1,5 +1,8 @@
 package ch.epfl.cs107.icmon.actor.npc;
 
+import ch.epfl.cs107.icmon.ICMonEventManager;
+import ch.epfl.cs107.icmon.gamelogic.events.EndOfTheGameEvent;
+import ch.epfl.cs107.icmon.gamelogic.events.ICMonEvent;
 import ch.epfl.cs107.icmon.handler.ICMonInteractionVisitor;
 import ch.epfl.cs107.play.areagame.area.Area;
 import ch.epfl.cs107.play.areagame.handler.AreaInteractionVisitor;
@@ -10,6 +13,10 @@ import ch.epfl.cs107.play.window.Canvas;
 
 public class ICShopAssistant extends NPCActor {
 
+    private ICMonEventManager eventManager;
+    private EndOfTheGameEvent endOfTheGameEvent;
+
+
     /**
      * Constructor for ICShopAssistant.
      *
@@ -17,8 +24,9 @@ public class ICShopAssistant extends NPCActor {
      * @param orientation (Orientation): Initial orientation of the actor in the Area. Not null
      * @param coordinates (DiscreteCoordinates): Initial position of the actor. Not null
      */
-    public ICShopAssistant(Area owner, Orientation orientation, DiscreteCoordinates coordinates) {
+    public ICShopAssistant(Area owner, Orientation orientation, DiscreteCoordinates coordinates, ICMonEventManager eventManager) {
         super(owner, orientation, coordinates, "actors/assistant");
+        this.eventManager = eventManager;
     }
 
     @Override
@@ -28,10 +36,13 @@ public class ICShopAssistant extends NPCActor {
 
     @Override
     public void acceptInteraction(AreaInteractionVisitor v, boolean isCellInteraction) {
-        System.out.println("This is an interaction between the player and ICShopAssistant based on events !");
+        if (eventManager.isEventActive("EndOfTheGameEvent")) {
+            System.out.println("I heard that you were able to implement this step successfully. Congrats!");
+        } else {
+            System.out.println("This is an interaction between the player and ICShopAssistant based on events !");
+        }
         ((ICMonInteractionVisitor) v).interactWith(this, isCellInteraction);
     }
-
 
 
 

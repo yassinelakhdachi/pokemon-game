@@ -1,4 +1,8 @@
 package ch.epfl.cs107.icmon.actor;
+import ch.epfl.cs107.icmon.area.Door;
+import ch.epfl.cs107.icmon.area.ICMonArea;
+import ch.epfl.cs107.icmon.gamelogic.messages.PassDoorMessage;
+import ch.epfl.cs107.play.engine.actor.Dialog;
 
 import ch.epfl.cs107.icmon.ICMon;
 import ch.epfl.cs107.icmon.actor.items.ICBall;
@@ -14,6 +18,8 @@ import ch.epfl.cs107.play.math.Orientation;
 import ch.epfl.cs107.play.window.Button;
 import ch.epfl.cs107.play.window.Canvas;
 import ch.epfl.cs107.play.window.Keyboard;
+import ch.epfl.cs107.play.math.Vector;
+
 
 import java.util.Collections;
 import java.util.List;
@@ -27,12 +33,19 @@ public final class ICMonPlayer extends ICMonActor implements Interactor {
     private OrientedAnimation walkingOnWater;
     private final ICMonPlayerInteractionHandler handler;
     private final ICMon game; // Référence au jeu pour l'accès à l'état du jeu
+    private Orientation orientation;
+    private DiscreteCoordinates currentCoordinates;
+    private ICMonArea currentArea;
 
-    public ICMonPlayer(Area owner, Orientation orientation, DiscreteCoordinates coordinates, String spriteName, ICMon game) {
-        super(owner, orientation, coordinates);
+
+    private Dialog currentDialog;
+    private boolean isInDialogue;
+
+    public ICMonPlayer(ICMonArea area, Orientation orientation, DiscreteCoordinates coordinates, String spriteName, ICMon game) {
+        super(area, orientation, coordinates);
         animation = new OrientedAnimation[2];
-        animation[0] = new OrientedAnimation("actors/player", ANIMATION_DURATION/2, orientation, this);
-        animation[1] = new OrientedAnimation("actors/player_water", ANIMATION_DURATION/2, orientation, this);
+        animation[0] = new OrientedAnimation("actors/player", ANIMATION_DURATION / 2, orientation, this);
+        animation[1] = new OrientedAnimation("actors/player_water", ANIMATION_DURATION / 2, orientation, this);
         walkingOnGround = animation[0];
         walkingOnWater = animation[1];
         currentAnimation = walkingOnGround;
@@ -43,25 +56,41 @@ public final class ICMonPlayer extends ICMonActor implements Interactor {
 
     @Override
     public void update(float deltaTime) {
-        Keyboard keyboard = getOwnerArea().getKeyboard();
-        moveIfPressed(Orientation.LEFT, keyboard.get(Keyboard.LEFT));
-        moveIfPressed(Orientation.UP, keyboard.get(Keyboard.UP));
-        moveIfPressed(Orientation.RIGHT, keyboard.get(Keyboard.RIGHT));
-        moveIfPressed(Orientation.DOWN, keyboard.get(Keyboard.DOWN));
-
-        if (isDisplacementOccurs()) {
-            currentAnimation.update(deltaTime);
+        if (isInDialogue) {
+            if (currentDialog != null && getOwnerArea().getKeyboard().get(Keyboard.SPACE).isPressed()) {
+                currentDialog.update(deltaTime);
+                if (currentDialog.isCompleted()) {
+                    isInDialogue = false;
+                    currentDialog = null;
+                }
+            }
         } else {
-            currentAnimation.reset();
-            resetMotion();
+            // Comportement habituel du joueur (déplacement, etc.)
+            Keyboard keyboard = getOwnerArea().getKeyboard();
+            moveIfPressed(Orientation.LEFT, keyboard.get(Keyboard.LEFT));
+            moveIfPressed(Orientation.UP, keyboard.get(Keyboard.UP));
+            moveIfPressed(Orientation.RIGHT, keyboard.get(Keyboard.RIGHT));
+            moveIfPressed(Orientation.DOWN, keyboard.get(Keyboard.DOWN));
+
+            if (isDisplacementOccurs()) {
+                currentAnimation.update(deltaTime);
+            } else {
+                currentAnimation.reset();
+                resetMotion();
+            }
+            super.update(deltaTime);
         }
-        super.update(deltaTime);
     }
 
     @Override
     public void draw(Canvas canvas) {
-        currentAnimation.draw(canvas);
+        if (isInDialogue && currentDialog != null) {
+            currentDialog.draw(canvas);
+        } else {
+            currentAnimation.draw(canvas);
+        }
     }
+
 
     @Override
     public boolean takeCellSpace() {
@@ -89,10 +118,10 @@ public final class ICMonPlayer extends ICMonActor implements Interactor {
         return keyboard.get(Keyboard.L).isPressed();
     }
 
-    @Override
-    public void interactWith(Interactable other, boolean isCellInteraction) {
-        other.acceptInteraction(handler, isCellInteraction);
-    }
+//    @Override
+//    public void interactWith(Interactable other, boolean isCellInteraction) {
+//        other.acceptInteraction(handler, isCellInteraction);
+//    }
 
     @Override
     public void acceptInteraction(AreaInteractionVisitor v, boolean isCellInteraction) {
@@ -109,12 +138,56 @@ public final class ICMonPlayer extends ICMonActor implements Interactor {
         }
     }
 
-    public void enterArea(Area area, DiscreteCoordinates position) {
-        super.enterArea(area, position);
+    public void leaveArea() {
+        if (currentArea != null) {
+            currentArea.unregisterActor(this);
+        }
+        currentArea = null;
+    }
+
+    public void enterArea(ICMonArea newArea, DiscreteCoordinates newCoordinates) {
+        currentArea = newArea;
+        newArea.registerActor(this);
+        setPosition(newCoordinates.toVector());
+        newArea.setViewCandidate(this); // Définit le joueur comme candidat pour le suivi de la caméra
+        centerCamera(); // Centre la caméra sur le joueur dans la nouvelle aire
+    }
+
+
+
+    public void setPosition(Vector newPosition) {
+        if (newPosition != null) {
+            super.setCurrentPosition(newPosition);
+        }
     }
 
     public void centerCamera() {
         super.centerCamera();
+    }
+
+    public void openDialog(Dialog dialog) {
+        this.currentDialog = dialog;
+        this.isInDialogue = true;
+    }
+
+    @Override
+    public void interactWith(Interactable other, boolean isCellInteraction) {
+        other.acceptInteraction(handler, isCellInteraction);
+
+        // Ajoutez la logique spéciale ici pour la porte menant à l'Arena
+        if (other instanceof Door && isCellInteraction) {
+            System.out.println("ICMonPlayer interacts with a door at " + getCurrentMainCellCoordinates());
+            Door door = (Door) other;
+            game.send(new PassDoorMessage(this, door, game)); // Envoyer le message pour gérer le changement d'aire
+            // Vérification temporaire de la position spécifique
+            if (getCurrentMainCellCoordinates().equals(new DiscreteCoordinates(20, 16))) {
+                System.out.println("Changing area to Arena directly");
+                ICMonArea destinationArea = game.getArea("Arena");
+                this.leaveArea();
+                this.enterArea(destinationArea, destinationArea.getPlayerSpawnPosition());
+                this.centerCamera();
+            }
+        }
     }
 
     private class ICMonPlayerInteractionHandler implements ICMonInteractionVisitor {
@@ -137,10 +210,16 @@ public final class ICMonPlayer extends ICMonActor implements Interactor {
 
         @Override
         public void interactWith(Interactable other, boolean isCellInteraction) {
-            other.acceptInteraction(handler, isCellInteraction);
-            if (game != null) {
-                game.getGameState().acceptInteraction(other, isCellInteraction); // Délégation aux événements du jeu
+            if (other instanceof Door && isCellInteraction) {
+                System.out.println("ICMonPlayer is sending PassDoorMessage");
+                Door door = (Door) other;
+                game.send(new PassDoorMessage(ICMonPlayer.this, door, game));
+                System.out.println("PassDoorMessage sent");
+            }else {
+                // Gère les autres interactions
+                other.acceptInteraction(handler, isCellInteraction);
             }
         }
     }
 }
+
