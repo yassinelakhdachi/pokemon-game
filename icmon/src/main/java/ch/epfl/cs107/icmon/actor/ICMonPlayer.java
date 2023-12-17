@@ -1,6 +1,9 @@
 package ch.epfl.cs107.icmon.actor;
+import ch.epfl.cs107.icmon.actor.pokemon.Pokemon;
 import ch.epfl.cs107.icmon.area.Door;
 import ch.epfl.cs107.icmon.area.ICMonArea;
+import ch.epfl.cs107.icmon.gamelogic.events.PokemonFightEvent;
+import ch.epfl.cs107.icmon.gamelogic.fights.ICMonFight;
 import ch.epfl.cs107.icmon.gamelogic.messages.PassDoorMessage;
 import ch.epfl.cs107.play.engine.actor.Dialog;
 
@@ -36,6 +39,8 @@ public final class ICMonPlayer extends ICMonActor implements Interactor {
     private Orientation orientation;
     private DiscreteCoordinates currentCoordinates;
     private ICMonArea currentArea;
+
+    private ICMonFight fightMenu;
 
 
     private Dialog currentDialog;
@@ -170,6 +175,25 @@ public final class ICMonPlayer extends ICMonActor implements Interactor {
         this.isInDialogue = true;
     }
 
+    public void fight(Pokemon opponent) {
+        // Afficher un message indiquant que le combat commence
+        System.out.println("Le combat commence contre " + opponent.getName());
+
+        // Logique simplifiée pour le combat
+        // Pour le moment, nous pouvons simplement attendre quelques secondes et terminer le combat
+        try {
+            Thread.sleep(5000); // Attendre 5 secondes
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Afficher un message indiquant que le combat est terminé
+        System.out.println("Le combat est terminé");
+
+
+    }
+
+
     @Override
     public void interactWith(Interactable other, boolean isCellInteraction) {
         other.acceptInteraction(handler, isCellInteraction);
@@ -187,6 +211,12 @@ public final class ICMonPlayer extends ICMonActor implements Interactor {
                 this.enterArea(destinationArea, destinationArea.getPlayerSpawnPosition());
                 this.centerCamera();
             }
+        }
+
+        // Logique pour commencer le combat lors de l'interaction avec un Pokémon
+        if (other instanceof Pokemon && isCellInteraction) {
+            System.out.println("ICMonPlayer starts a fight with " + ((Pokemon) other).getName());
+            fight((Pokemon) other);
         }
     }
 

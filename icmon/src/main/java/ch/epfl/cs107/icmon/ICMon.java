@@ -9,6 +9,7 @@ import ch.epfl.cs107.icmon.gamelogic.events.CollectItemEvent;
 import ch.epfl.cs107.icmon.gamelogic.events.EndOfTheGameEvent;
 import ch.epfl.cs107.icmon.gamelogic.events.ICMonEvent;
 import ch.epfl.cs107.icmon.gamelogic.messages.GamePlayMessage;
+import ch.epfl.cs107.icmon.gamelogic.messages.SuspendWithEvent;
 import ch.epfl.cs107.play.areagame.AreaGame;
 import ch.epfl.cs107.play.areagame.actor.Interactable;
 import ch.epfl.cs107.play.areagame.area.Area;
@@ -133,7 +134,17 @@ public class ICMon extends AreaGame {
     public void send(GamePlayMessage message) {
         this.message = message;
         System.out.println("Message sent: " + message);
+        if (message instanceof SuspendWithEvent) {
+            handleSuspendWithEvent((SuspendWithEvent) message);
+        }
     }
+
+    private void handleSuspendWithEvent(SuspendWithEvent eventMessage) {
+//        setPauseMenu(eventMessage.getEvent().getFightMenu());
+        requestPause(); // Mettre le jeu en pause
+        registerEvent(eventMessage.getEvent());
+    }
+
 
     @Override
     public void end() {
