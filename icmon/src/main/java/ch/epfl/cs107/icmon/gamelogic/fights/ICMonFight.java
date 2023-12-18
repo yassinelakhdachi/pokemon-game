@@ -1,5 +1,7 @@
 package ch.epfl.cs107.icmon.gamelogic.fights;
 
+import ch.epfl.cs107.icmon.actor.pokemon.Pokemon;
+import ch.epfl.cs107.icmon.graphics.ICMonFightArenaGraphics;
 import ch.epfl.cs107.play.engine.PauseMenu;
 import ch.epfl.cs107.play.engine.actor.Actor;
 import ch.epfl.cs107.play.window.Canvas;
@@ -8,11 +10,16 @@ import ch.epfl.cs107.play.math.Vector;
 
 abstract public class ICMonFight extends PauseMenu implements Actor {
     private float counter;
+    private Pokemon playerPokemon;
 
-    public ICMonFight() {
-        this.counter = 5f; // 5 secondes
+    private Pokemon opponentPokemon;
+    private ICMonFightArenaGraphics arena;
+
+    public ICMonFight(Pokemon playerPokemon, Pokemon opponentPokemon) {
+        this.playerPokemon = playerPokemon;
+        this.opponentPokemon = opponentPokemon;
+        this.arena = new ICMonFightArenaGraphics(CAMERA_SCALE_FACTOR, playerPokemon.getProperties(), opponentPokemon.getProperties());
     }
-
     @Override
     public void update(float deltaTime) {
         if (isRunning()) {
@@ -26,7 +33,7 @@ abstract public class ICMonFight extends PauseMenu implements Actor {
 
     @Override
     public void draw(Canvas canvas) {
-        // Dessiner le menu de combat
+        arena.draw(canvas);
     }
 
     @Override

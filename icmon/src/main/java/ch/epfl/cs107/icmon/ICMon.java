@@ -30,8 +30,9 @@ import java.util.Map;
 
 public class ICMon extends AreaGame {
 
+
     public final static float CAMERA_SCALE_FACTOR = 13.f;
-    private final String[] areas = {"Town"};
+    private final String[] areas = {"Town","Arena"};
     private ICMonPlayer player;
     private int areaIndex;
 
@@ -71,10 +72,15 @@ public class ICMon extends AreaGame {
         }
     }
 
+    private ICMon otherplayer;
+
+
+
     private void createAreas() {
         Town town = new Town(eventManager);
         addArea(town);
-        Arena arena = new Arena(); // Création de Arena sans paramètres
+        Arena arena = new Arena(this);
+        arena.setPlayer(player); // Définir le joueur pour Arena
         addArea(arena);
     }
 

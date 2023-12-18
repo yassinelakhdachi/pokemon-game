@@ -23,6 +23,8 @@ public final class ICMonBehavior extends AreaBehavior {
                 setCell(x, y, new ICMonCell(x, y, color));
             }
         }
+        System.out.println("Behavior for " + name + " loaded with " + getWidth() + "x" + getHeight() + " cells.");
+
     }
 
     public enum AllowedWalkingType {

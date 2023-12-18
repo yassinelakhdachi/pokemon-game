@@ -53,24 +53,29 @@ public abstract class Pokemon extends ICMonActor {
      * @author Hamza REMMAL (hamza.remmal@epfl.ch)
      */
     public final class PokemonProperties {
-
-        public String name(){
-            return null;
+        public String name() {
+            return name;
         }
 
-        public float hp(){
-            return 0f;
+        public float hp() {
+            return hp;
         }
 
-        public float maxHp(){
-            return 0f;
+        public float maxHp() {
+            return maxHp;
         }
 
-        public int damage(){
-            return 0;
+        public int damage() {
+            return damage;
         }
+
 
     }
+
+    public PokemonProperties getProperties() {
+        return new PokemonProperties();
+    }
+
 
 
 }

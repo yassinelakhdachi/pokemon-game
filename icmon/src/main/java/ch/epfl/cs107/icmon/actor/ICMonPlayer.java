@@ -1,4 +1,7 @@
 package ch.epfl.cs107.icmon.actor;
+import ch.epfl.cs107.icmon.actor.pokemon.Bulbizarre;
+import ch.epfl.cs107.icmon.actor.pokemon.Latios;
+import ch.epfl.cs107.icmon.actor.pokemon.Nidoqueen;
 import ch.epfl.cs107.icmon.actor.pokemon.Pokemon;
 import ch.epfl.cs107.icmon.area.Door;
 import ch.epfl.cs107.icmon.area.ICMonArea;
@@ -24,6 +27,7 @@ import ch.epfl.cs107.play.window.Keyboard;
 import ch.epfl.cs107.play.math.Vector;
 
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,6 +50,8 @@ public final class ICMonPlayer extends ICMonActor implements Interactor {
     private Dialog currentDialog;
     private boolean isInDialogue;
 
+    private List<Pokemon> pokemons;
+
     public ICMonPlayer(ICMonArea area, Orientation orientation, DiscreteCoordinates coordinates, String spriteName, ICMon game) {
         super(area, orientation, coordinates);
         animation = new OrientedAnimation[2];
@@ -57,6 +63,11 @@ public final class ICMonPlayer extends ICMonActor implements Interactor {
         handler = new ICMonPlayerInteractionHandler();
         this.game = game;
         resetMotion();
+        pokemons = new ArrayList<>();
+        // Ajout de Bulbizarre, Latios, Nidoqueen
+//        pokemons.add(new Bulbizarre());
+//        pokemons.add(new Latios());
+//        pokemons.add(new Nidoqueen());
     }
 
     @Override
@@ -176,11 +187,11 @@ public final class ICMonPlayer extends ICMonActor implements Interactor {
     }
 
     public void fight(Pokemon opponent) {
-        // Afficher un message indiquant que le combat commence
+        Pokemon playerPokemon = pokemons.get(0); // Utilisez le premier Pokémon de la liste
+//        ICMonFight fight = new ICMonFight(playerPokemon, opponent);
         System.out.println("Le combat commence contre " + opponent.getName());
 
         // Logique simplifiée pour le combat
-        // Pour le moment, nous pouvons simplement attendre quelques secondes et terminer le combat
         try {
             Thread.sleep(5000); // Attendre 5 secondes
         } catch (InterruptedException e) {
@@ -198,7 +209,6 @@ public final class ICMonPlayer extends ICMonActor implements Interactor {
     public void interactWith(Interactable other, boolean isCellInteraction) {
         other.acceptInteraction(handler, isCellInteraction);
 
-        // Ajoutez la logique spéciale ici pour la porte menant à l'Arena
         if (other instanceof Door && isCellInteraction) {
             System.out.println("ICMonPlayer interacts with a door at " + getCurrentMainCellCoordinates());
             Door door = (Door) other;

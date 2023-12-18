@@ -24,7 +24,6 @@ public final class Town extends ICMonArea {
     private EndOfTheGameEvent endOfTheGameEvent;
 
     public Town(ICMonEventManager eventManager) {
-
         this.eventManager = eventManager;
     }
     /**
@@ -69,6 +68,5 @@ public final class Town extends ICMonArea {
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);
-
     }
 }

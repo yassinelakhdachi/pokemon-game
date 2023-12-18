@@ -9,7 +9,6 @@ public class PassDoorMessage extends GamePlayMessage {
     private final ICMonPlayer player;
     private final Door door;
     private final ICMon game;
-
     public PassDoorMessage(ICMonPlayer player, Door door, ICMon game) {
         this.player = player;
         this.door = door;
@@ -22,13 +21,14 @@ public class PassDoorMessage extends GamePlayMessage {
         System.out.println("Processing PassDoorMessage");
         player.leaveArea();
         ICMonArea destinationArea = game.getArea(door.getDestinationArea());
-        if (destinationArea == null) {
-            System.out.println("Destination area not found: " + door.getDestinationArea());
-            return;
+
+        if (destinationArea != null) {
+            player.enterArea(destinationArea, destinationArea.getPlayerSpawnPosition());
+            System.out.println("Player moved to " + door.getDestinationArea());
+            game.updateCurrentArea(destinationArea.getTitle());
         }
-        player.enterArea(destinationArea, door.getDestinationCoordinates());
-        System.out.println("Player moved to " + door.getDestinationArea());
-        game.updateCurrentArea(destinationArea.getTitle());
-    }
+        }
+
+
 
 }
