@@ -216,7 +216,11 @@ public final class ICMonPlayer extends ICMonActor implements Interactor {
             // Vérification temporaire de la position spécifique
             if (getCurrentMainCellCoordinates().equals(new DiscreteCoordinates(20, 16))) {
                 System.out.println("Changing area to Arena directly");
-                ICMonArea destinationArea = game.getArea("Arena");
+
+            }
+            else if (getCurrentMainCellCoordinates().equals(new DiscreteCoordinates(15, 24))) {
+                System.out.println("Changing area to Lab directly");
+                ICMonArea destinationArea = game.getArea("Lab");
                 this.leaveArea();
                 this.enterArea(destinationArea, destinationArea.getPlayerSpawnPosition());
                 this.centerCamera();
@@ -229,6 +233,11 @@ public final class ICMonPlayer extends ICMonActor implements Interactor {
             fight((Pokemon) other);
         }
     }
+
+    public ICMonArea getCurrentArea() {
+        return this.currentArea;
+    }
+
 
     private class ICMonPlayerInteractionHandler implements ICMonInteractionVisitor {
         @Override

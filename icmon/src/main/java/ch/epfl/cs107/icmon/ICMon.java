@@ -3,6 +3,7 @@ package ch.epfl.cs107.icmon;
 import ch.epfl.cs107.icmon.actor.items.ICBall;
 import ch.epfl.cs107.icmon.actor.items.ICMonItem;
 import ch.epfl.cs107.icmon.area.Arena;
+import ch.epfl.cs107.icmon.area.Lab;
 import ch.epfl.cs107.icmon.gamelogic.actions.LogAction;
 import ch.epfl.cs107.icmon.gamelogic.actions.StartEventAction;
 import ch.epfl.cs107.icmon.gamelogic.events.CollectItemEvent;
@@ -34,6 +35,8 @@ public class ICMon extends AreaGame {
     public final static float CAMERA_SCALE_FACTOR = 13.f;
     private final String[] areas = {"Town","Arena"};
     private ICMonPlayer player;
+    private ICMonPlayer otherPlayerlab;
+
     private int areaIndex;
 
     private ICMonItem ball;
@@ -72,7 +75,7 @@ public class ICMon extends AreaGame {
         }
     }
 
-    private ICMon otherplayer;
+    private ICMon gameReferencelab;
 
 
 
@@ -82,6 +85,9 @@ public class ICMon extends AreaGame {
         Arena arena = new Arena(this);
         arena.setPlayer(player); // Définir le joueur pour Arena
         addArea(arena);
+        Lab lab = new Lab(this);
+        lab.setPlayer(otherPlayerlab); // Définir le joueur pour Lab
+        addArea(lab);
     }
 
     private void addArea(ICMonArea area) {

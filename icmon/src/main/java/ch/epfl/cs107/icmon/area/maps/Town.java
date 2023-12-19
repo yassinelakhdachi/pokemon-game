@@ -1,6 +1,7 @@
 package ch.epfl.cs107.icmon.area.maps;
 
 import ch.epfl.cs107.icmon.ICMonEventManager;
+import ch.epfl.cs107.icmon.actor.ICMonPlayer;
 import ch.epfl.cs107.icmon.actor.items.ICBall;
 import ch.epfl.cs107.icmon.actor.items.ICMonItem;
 import ch.epfl.cs107.icmon.actor.npc.ICShopAssistant;
@@ -22,6 +23,8 @@ public final class Town extends ICMonArea {
     private ICMonEventManager eventManager;
 
     private EndOfTheGameEvent endOfTheGameEvent;
+
+    private ICMonPlayer player;
 
     public Town(ICMonEventManager eventManager) {
         this.eventManager = eventManager;
@@ -68,5 +71,9 @@ public final class Town extends ICMonArea {
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);
+        if (player != null && player.getCurrentArea().equals(this)) {
+            setViewCandidate(player); // Focaliser la caméra sur player dans Town
+        }
+
     }
 }

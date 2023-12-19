@@ -48,7 +48,7 @@ public final class Arena extends ICMonArea {
                 new DiscreteCoordinates(4, 1)));
         System.out.println("Door from Arena to Town added");
 
-        // Coordonnées où vous voulez que le joueur apparaisse dans Arena
+        // Coordonnées où vous voulez qu44e le joueur apparaisse dans Arena
         DiscreteCoordinates spawnPosition = new DiscreteCoordinates(4, 4);
 
         // Création du joueur pour Arena
